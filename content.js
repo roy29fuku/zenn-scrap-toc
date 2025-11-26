@@ -1,17 +1,19 @@
 // Zenn Scrap TOC Extension - Main Content Script
-// Version: 0.1.2
+// Version: 0.2.0
 
 (function() {
   'use strict';
 
-  console.log('[Zenn Scrap TOC] Extension loaded - v0.1.2');
+  console.log('[Zenn Scrap TOC] Extension loaded - v0.2.0');
 
   // グローバル変数でObserverと状態を管理
   let tocScrollObserver = null;
   let tocMutationObserver = null;
+  let earlyInitObserver = null;
   let urlCheckInterval = null;
   let currentUrl = window.location.href;
   let isInitialized = false;
+  let isWaitingForContent = false;
 
   // ScrapページのURLパターンをチェック
   function isScrapPage(url) {
@@ -37,8 +39,13 @@
       tocMutationObserver.disconnect();
       tocMutationObserver = null;
     }
+    if (earlyInitObserver) {
+      earlyInitObserver.disconnect();
+      earlyInitObserver = null;
+    }
 
     isInitialized = false;
+    isWaitingForContent = false;
   }
 
   // URLの変更を定期的にチェック（フォールバック）
@@ -53,7 +60,7 @@
         console.log('[Zenn Scrap TOC] URL changed:', currentUrl, '->', newUrl);
         handleUrlChange(newUrl);
       }
-    }, 500); // 500msごとにチェック
+    }, 300); // ポーリング間隔を短縮
   }
 
   // URLが変更されたときの処理
@@ -67,13 +74,17 @@
       // 既存のTOCを削除
       removeTocPanel();
 
-      // 少し遅延を入れて、ページのコンテンツが読み込まれるのを待つ
+      // 早期初期化を試みる
+      setupEarlyInitObserver();
+
+      // フォールバック: 100ms後にまだ初期化されていなければ初期化
       setTimeout(() => {
-        // まだScrapページにいることを確認
-        if (isScrapPage(window.location.href)) {
+        // まだScrapページにいることを確認し、まだ初期化されていない場合
+        if (isScrapPage(window.location.href) && !isInitialized && !isWaitingForContent) {
+          console.log('[Zenn Scrap TOC] Fallback initialization');
           init();
         }
-      }, 800); // 少し長めの遅延
+      }, 100);
     } else {
       console.log('[Zenn Scrap TOC] Not a Scrap page, removing TOC');
       // Scrapページ以外では削除
@@ -112,7 +123,7 @@
           if (newUrl !== currentUrl) {
             handleUrlChange(newUrl);
           }
-        }, 500);
+        }, 200); // リンククリック後の遅延を短縮
       }
     }, true);
 
@@ -281,7 +292,7 @@
     panel.className = `zenn-scrap-toc ${tocSettings.isExpanded ? 'expanded' : 'collapsed'}`;
 
     // バージョン表示（デバッグ用）
-    panel.dataset.version = '0.1.2';
+    panel.dataset.version = '0.2.0';
 
     // ヘッダー部分
     const header = document.createElement('div');
@@ -389,6 +400,53 @@
     return observer;
   }
 
+  // 早期初期化用のMutationObserver
+  function setupEarlyInitObserver() {
+    // 既に初期化済みまたは待機中の場合はスキップ
+    if (isInitialized || isWaitingForContent) {
+      return;
+    }
+
+    isWaitingForContent = true;
+    console.log('[Zenn Scrap TOC] Setting up early init observer');
+
+    const targetNode = document.querySelector('main') || document.body;
+    const config = { childList: true, subtree: true };
+
+    let initCheckTimer;
+    const callback = function(mutationsList) {
+      clearTimeout(initCheckTimer);
+      initCheckTimer = setTimeout(() => {
+        // 見出しが存在するかチェック
+        const headings = document.querySelectorAll('h1.code-line, h2.code-line, h3.code-line');
+        if (headings.length > 0 && !isInitialized) {
+          console.log('[Zenn Scrap TOC] Headings detected, initializing immediately');
+
+          // Observerを切断
+          if (earlyInitObserver) {
+            earlyInitObserver.disconnect();
+            earlyInitObserver = null;
+          }
+
+          isWaitingForContent = false;
+          init();
+        }
+      }, 20); // 非常に短いデバウンス
+    };
+
+    earlyInitObserver = new MutationObserver(callback);
+    earlyInitObserver.observe(targetNode, config);
+
+    // タイムアウト設定（5秒後に自動的にObserverを切断）
+    setTimeout(() => {
+      if (earlyInitObserver) {
+        earlyInitObserver.disconnect();
+        earlyInitObserver = null;
+        isWaitingForContent = false;
+      }
+    }, 5000);
+  }
+
   // DOMの変更を監視（動的に追加される見出しに対応）
   function setupMutationObserver() {
     const targetNode = document.querySelector('main') || document.body;
@@ -425,7 +483,7 @@
           }
           tocScrollObserver = setupScrollSpy();
         }
-      }, 500);
+      }, 100); // デバウンス時間を短縮
     };
 
     const observer = new MutationObserver(callback);
@@ -511,10 +569,36 @@
       // DOM読み込み完了を待つ
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-          setTimeout(init, 500); // 少し待ってから初期化
+          // 早期初期化を試みる
+          setupEarlyInitObserver();
+
+          // フォールバック: 100ms後にまだ初期化されていなければ初期化
+          setTimeout(() => {
+            if (!isInitialized && !isWaitingForContent) {
+              console.log('[Zenn Scrap TOC] Fallback initialization (DOMContentLoaded)');
+              init();
+            }
+          }, 100);
         });
       } else {
-        setTimeout(init, 500); // 少し待ってから初期化
+        // 既にDOM読み込み済みの場合
+        // 即座に見出しをチェック
+        const headings = document.querySelectorAll('h1.code-line, h2.code-line, h3.code-line');
+        if (headings.length > 0) {
+          console.log('[Zenn Scrap TOC] Headings already present, initializing immediately');
+          init();
+        } else {
+          // 見出しがまだない場合は早期初期化Observerをセットアップ
+          setupEarlyInitObserver();
+
+          // フォールバック
+          setTimeout(() => {
+            if (!isInitialized && !isWaitingForContent) {
+              console.log('[Zenn Scrap TOC] Fallback initialization (initial load)');
+              init();
+            }
+          }, 100);
+        }
       }
     }
   }
