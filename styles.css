@@ -1,0 +1,307 @@
+/* Zenn Scrap TOC Extension - Styles */
+
+/* TOCパネル全体 */
+#zenn-scrap-toc {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 280px;
+  max-height: calc(100vh - 160px);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 9999;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ダークモード対応 */
+[data-theme="dark"] #zenn-scrap-toc {
+  background: #1f2937;
+  border-color: #374151;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* 折りたたみ状態 */
+#zenn-scrap-toc.collapsed {
+  width: auto;
+  min-width: 120px;
+}
+
+#zenn-scrap-toc.collapsed .zenn-toc-content {
+  display: none;
+}
+
+/* ヘッダー部分 */
+.zenn-toc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 8px 8px 0 0;
+}
+
+[data-theme="dark"] .zenn-toc-header {
+  background: #111827;
+  border-bottom-color: #374151;
+}
+
+.zenn-toc-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  user-select: none;
+}
+
+[data-theme="dark"] .zenn-toc-title {
+  color: #f3f4f6;
+}
+
+/* 折りたたみボタン */
+.zenn-toc-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #6b7280;
+  transition: color 0.2s;
+  outline: none;
+}
+
+.zenn-toc-toggle:hover {
+  color: #1f2937;
+}
+
+[data-theme="dark"] .zenn-toc-toggle {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .zenn-toc-toggle:hover {
+  color: #f3f4f6;
+}
+
+/* コンテンツ部分 */
+.zenn-toc-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 240px);
+  padding: 12px 0;
+}
+
+/* スクロールバーのカスタマイズ */
+.zenn-toc-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.zenn-toc-content::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.zenn-toc-content::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.zenn-toc-content::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+[data-theme="dark"] .zenn-toc-content::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+[data-theme="dark"] .zenn-toc-content::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+[data-theme="dark"] .zenn-toc-content::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* TOCリスト */
+.zenn-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.zenn-toc-level-1,
+.zenn-toc-level-2 {
+  padding-left: 20px;
+}
+
+.zenn-toc-item {
+  margin: 0;
+  padding: 0;
+}
+
+/* TOCリンク */
+.zenn-toc-link {
+  display: block;
+  padding: 6px 16px;
+  color: #4b5563;
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.5;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zenn-toc-link:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+[data-theme="dark"] .zenn-toc-link {
+  color: #d1d5db;
+}
+
+[data-theme="dark"] .zenn-toc-link:hover {
+  background: #374151;
+  color: #f3f4f6;
+}
+
+/* アクティブ状態 */
+.zenn-toc-link.active {
+  background: #eff6ff;
+  color: #2563eb;
+  border-left-color: #2563eb;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .zenn-toc-link.active {
+  background: #1e3a8a;
+  color: #93bbfc;
+  border-left-color: #93bbfc;
+}
+
+/* レベル別のインデント */
+.zenn-toc-level-0 > .zenn-toc-item > .zenn-toc-link {
+  padding-left: 16px;
+  font-weight: 500;
+}
+
+.zenn-toc-level-1 > .zenn-toc-item > .zenn-toc-link {
+  padding-left: 32px;
+  font-size: 12px;
+}
+
+.zenn-toc-level-2 > .zenn-toc-item > .zenn-toc-link {
+  padding-left: 48px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+[data-theme="dark"] .zenn-toc-level-2 > .zenn-toc-item > .zenn-toc-link {
+  color: #9ca3af;
+}
+
+/* 空の状態 */
+.zenn-toc-empty {
+  padding: 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+[data-theme="dark"] .zenn-toc-empty {
+  color: #6b7280;
+}
+
+/* モバイル対応 */
+@media (max-width: 1440px) {
+  #zenn-scrap-toc {
+    width: 240px;
+  }
+}
+
+@media (max-width: 1200px) {
+  #zenn-scrap-toc {
+    display: none;
+  }
+
+  #zenn-scrap-toc.mobile {
+    display: flex;
+    top: auto;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    max-height: 60px;
+    border-radius: 50%;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #zenn-scrap-toc.mobile .zenn-toc-header {
+    border: none;
+    background: none;
+    padding: 0;
+  }
+
+  #zenn-scrap-toc.mobile .zenn-toc-title {
+    display: none;
+  }
+
+  #zenn-scrap-toc.mobile .zenn-toc-toggle {
+    font-size: 24px;
+    padding: 8px;
+  }
+
+  #zenn-scrap-toc.mobile.expanded {
+    width: 280px;
+    height: auto;
+    max-height: 60vh;
+    border-radius: 8px;
+  }
+
+  #zenn-scrap-toc.mobile.expanded .zenn-toc-header {
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+    padding: 12px 16px;
+  }
+
+  #zenn-scrap-toc.mobile.expanded .zenn-toc-title {
+    display: block;
+  }
+
+  #zenn-scrap-toc.mobile.expanded .zenn-toc-toggle {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
+
+/* アニメーション */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+#zenn-scrap-toc {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* 印刷時は非表示 */
+@media print {
+  #zenn-scrap-toc {
+    display: none !important;
+  }
+}

@@ -1,0 +1,44 @@
+# 更新履歴
+
+このファイルはZenn Scrap TOC Chrome拡張機能の全ての変更履歴を記録しています。
+
+フォーマットは[Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)に基づいており、
+このプロジェクトは[Semantic Versioning](https://semver.org/lang/ja/)に準拠しています。
+
+## [Unreleased]
+
+### 予定している機能
+- 目次の表示位置のカスタマイズ機能
+- 見出しレベルの表示/非表示設定
+- キーボードショートカット対応
+- 目次の検索機能
+- エクスポート機能
+
+## [0.1.0] - 2025-11-26
+
+### 追加
+- 初回リリース
+- ZennのScrapページに目次（Table of Contents）機能を追加
+- 見出し（H1〜H3）の自動検出と階層構造の構築
+- クリックによるスムーススクロール機能
+- スクロール位置に連動した現在セクションのハイライト表示
+- 目次パネルの折りたたみ/展開機能
+- 設定のLocalStorage保存
+- レスポンシブデザイン（モバイル対応）
+- ダークモード自動対応
+- ページ遷移検出（SPA対応）
+  - History APIのフック
+  - popstateイベントの監視
+  - clickイベントのキャプチャ
+  - titleタグの変更監視
+  - URLポーリング（フォールバック）
+
+### 技術仕様
+- Manifest Version 3対応
+- Chrome/Edge（Chromium版）対応
+- Intersection Observer APIを使用したスクロールスパイ
+- MutationObserverを使用した動的コンテンツ対応
+
+### 既知の問題
+- 一部のページ遷移でリロードが必要な場合がある
+- 非常に長いScrapページでパフォーマンスが低下する可能性がある

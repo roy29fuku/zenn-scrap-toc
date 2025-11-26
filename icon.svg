@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Background -->
+  <rect width="128" height="128" rx="20" fill="#3EA8FF"/>
+
+  <!-- TOC Lines -->
+  <g fill="white">
+    <!-- H1 -->
+    <rect x="20" y="28" width="60" height="8" rx="4"/>
+    <circle cx="92" cy="32" r="4"/>
+
+    <!-- H2 -->
+    <rect x="32" y="48" width="48" height="6" rx="3"/>
+    <circle cx="92" cy="51" r="3"/>
+
+    <!-- H2 -->
+    <rect x="32" y="64" width="48" height="6" rx="3"/>
+    <circle cx="92" cy="67" r="3"/>
+
+    <!-- H3 -->
+    <rect x="44" y="80" width="36" height="5" rx="2.5"/>
+    <circle cx="92" cy="82.5" r="2.5"/>
+
+    <!-- H1 -->
+    <rect x="20" y="96" width="60" height="8" rx="4"/>
+    <circle cx="92" cy="100" r="4"/>
+  </g>
+</svg>
