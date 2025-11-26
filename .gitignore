@@ -23,3 +23,6 @@ yarn-error.log*
 # Build output (if you add build process later)
 dist/
 build/
+
+# ZIP files for distribution
+*.zip
