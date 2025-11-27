@@ -1,10 +1,10 @@
 // Zenn Scrap TOC Extension - Main Content Script
-// Version: 0.2.0
+// Version: 0.2.1
 
 (function() {
   'use strict';
 
-  console.log('[Zenn Scrap TOC] Extension loaded - v0.2.0');
+  console.log('[Zenn Scrap TOC] Extension loaded - v0.2.1');
 
   // グローバル変数でObserverと状態を管理
   let tocScrollObserver = null;
@@ -235,7 +235,10 @@
   // TOCのHTMLを生成
   function createTocHtml(tocStructure, currentId = null) {
     if (tocStructure.length === 0) {
-      return '<div class="zenn-toc-empty">見出しが見つかりません</div>';
+      const emptyDiv = document.createElement('div');
+      emptyDiv.className = 'zenn-toc-empty';
+      emptyDiv.textContent = '見出しが見つかりません';
+      return emptyDiv;
     }
 
     function buildList(items, depth = 0) {
@@ -292,7 +295,7 @@
     panel.className = `zenn-scrap-toc ${tocSettings.isExpanded ? 'expanded' : 'collapsed'}`;
 
     // バージョン表示（デバッグ用）
-    panel.dataset.version = '0.2.0';
+    panel.dataset.version = '0.2.1';
 
     // ヘッダー部分
     const header = document.createElement('div');
