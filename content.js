@@ -1,10 +1,10 @@
 // Zenn Scrap TOC Extension - Main Content Script
-// Version: 0.2.2
+// Version: 0.2.3
 
 (function() {
   'use strict';
 
-  console.log('[Zenn Scrap TOC] Extension loaded - v0.2.2');
+  console.log('[Zenn Scrap TOC] Extension loaded - v0.2.3');
 
   // グローバル変数でObserverと状態を管理
   let tocScrollObserver = null;
@@ -185,6 +185,30 @@
     localStorage.setItem('zenn-scrap-toc-settings', JSON.stringify(tocSettings));
   }
 
+  // CSSが注入されているか確認し、必要に応じて注入
+  function injectStylesIfNeeded() {
+    // 既に注入されている場合はスキップ
+    if (document.getElementById('zenn-scrap-toc-styles')) {
+      return;
+    }
+
+    // CSSファイルへのリンクを動的に追加
+    const link = document.createElement('link');
+    link.id = 'zenn-scrap-toc-styles';
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = chrome.runtime.getURL('styles.css');
+
+    if (document.head) {
+      document.head.appendChild(link);
+    } else {
+      // document.headがまだない場合は、DOMContentLoadedを待つ
+      document.addEventListener('DOMContentLoaded', () => {
+        document.head.appendChild(link);
+      });
+    }
+  }
+
   // 見出し要素を収集
   function collectHeadings() {
     const headings = [];
@@ -310,12 +334,15 @@
 
   // TOCパネルを作成
   function createTocPanel() {
+    // CSSが読み込まれているか確認し、必要に応じて注入
+    injectStylesIfNeeded();
+
     const panel = document.createElement('div');
     panel.id = 'zenn-scrap-toc';
     panel.className = `zenn-scrap-toc ${tocSettings.isExpanded ? 'expanded' : 'collapsed'}`;
 
     // バージョン表示（デバッグ用）
-    panel.dataset.version = '0.2.2';
+    panel.dataset.version = '0.2.3';
 
     // ヘッダー部分
     const header = document.createElement('div');
@@ -587,14 +614,16 @@
 
   // ページの準備ができたら開始
   function startExtension() {
-    console.log('[Zenn Scrap TOC] Starting extension - document.readyState:', document.readyState);
+    console.log('[Zenn Scrap TOC] Starting extension - document.readyState:', document.readyState, 'URL:', window.location.href);
 
     // URL監視を開始（document_startでも安全に実行）
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
+        console.log('[Zenn Scrap TOC] Setting up URL observer (after DOMContentLoaded)');
         setupUrlObserver();
       });
     } else {
+      console.log('[Zenn Scrap TOC] Setting up URL observer (immediately)');
       setupUrlObserver();
     }
 
