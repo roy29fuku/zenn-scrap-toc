@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Zenn Scrap TOC",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "ZennのScrapページに目次機能を追加します",
   "permissions": [
     "storage"
@@ -14,7 +14,7 @@
       "matches": ["https://zenn.dev/*/scraps/*"],
       "css": ["styles.css"],
       "js": ["content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_start"
     }
   ],
   "icons": {
