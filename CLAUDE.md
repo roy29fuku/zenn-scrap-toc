@@ -201,5 +201,5 @@ gh release create v0.2.1 --title "Release v0.2.1" zenn-scrap-toc-v0.2.1.zip
 
 ---
 
-*最終更新: 2024-11-26*
+*最終更新: 2025-11-26*
 *プロジェクトバージョン: 0.2.0*
