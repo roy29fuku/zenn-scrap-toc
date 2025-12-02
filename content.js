@@ -1,10 +1,10 @@
 // Zenn Scrap TOC Extension - Main Content Script
-// Version: 0.2.4
+// Version: 0.2.5
 
 (function() {
   'use strict';
 
-  console.log('[Zenn Scrap TOC] Extension loaded - v0.2.4');
+  console.log('[Zenn Scrap TOC] Extension loaded - v0.2.5');
 
   // グローバル変数でObserverと状態を管理
   let tocScrollObserver = null;
@@ -75,8 +75,8 @@
       // 既存のTOCを削除
       removeTocPanel();
 
-      // すぐに見出しが存在するか確認
-      const immediateHeadings = document.querySelectorAll('h1.code-line, h2.code-line, h3.code-line');
+      // すぐに見出しが存在するか確認（h1-h6すべて、クラス問わず）
+      const immediateHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
       console.log('[Zenn Scrap TOC] Immediate headings found:', immediateHeadings.length);
 
       if (immediateHeadings.length > 0) {
@@ -92,7 +92,7 @@
         setTimeout(() => {
           // まだScrapページにいることを確認し、まだ初期化されていない場合
           if (isScrapPage(window.location.href) && !isInitialized && !isWaitingForContent) {
-            const delayedHeadings = document.querySelectorAll('h1.code-line, h2.code-line, h3.code-line');
+            const delayedHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
             console.log('[Zenn Scrap TOC] Fallback initialization - headings found:', delayedHeadings.length);
             init();
           }
@@ -212,27 +212,84 @@
   // 見出し要素を収集
   function collectHeadings() {
     const headings = [];
-    const selector = 'h1.code-line, h2.code-line, h3.code-line';
-    const elements = document.querySelectorAll(selector);
+    let elements;
+
+    // デバッグ用: すべての見出し要素を確認
+    console.log('[Zenn Scrap TOC Debug] All h1-h6 elements:', {
+      h1: document.querySelectorAll('h1').length,
+      h2: document.querySelectorAll('h2').length,
+      h3: document.querySelectorAll('h3').length,
+      h4: document.querySelectorAll('h4').length,
+      h5: document.querySelectorAll('h5').length,
+      h6: document.querySelectorAll('h6').length,
+      'h1.code-line': document.querySelectorAll('h1.code-line').length,
+      'h2.code-line': document.querySelectorAll('h2.code-line').length,
+      'h3.code-line': document.querySelectorAll('h3.code-line').length
+    });
+
+    // まず.code-lineクラス付きの見出しを探す（h1-h6すべて対象）
+    const selectorWithClass = 'h1.code-line, h2.code-line, h3.code-line, h4.code-line, h5.code-line, h6.code-line';
+    elements = document.querySelectorAll(selectorWithClass);
+
+    console.log('[Zenn Scrap TOC Debug] Found with .code-line class:', elements.length);
+
+    // .code-lineクラス付きの見出しが見つからない場合
+    if (elements.length === 0) {
+      console.log('[Zenn Scrap TOC Debug] No .code-line headings found, trying without class...');
+
+      // Scrapのメインコンテンツエリア内の見出しを探す
+      const contentSelectors = [
+        'article h1, article h2, article h3, article h4, article h5, article h6',
+        'main h1, main h2, main h3, main h4, main h5, main h6',
+        '[class*="scrap"] h1, [class*="scrap"] h2, [class*="scrap"] h3, [class*="scrap"] h4, [class*="scrap"] h5, [class*="scrap"] h6',
+        '[class*="content"] h1, [class*="content"] h2, [class*="content"] h3, [class*="content"] h4, [class*="content"] h5, [class*="content"] h6'
+      ];
+
+      for (const selector of contentSelectors) {
+        elements = document.querySelectorAll(selector);
+        if (elements.length > 0) {
+          console.log('[Zenn Scrap TOC Debug] Found headings with selector:', selector, 'count:', elements.length);
+          break;
+        }
+      }
+
+      // それでも見つからない場合は、すべての見出しを対象にする（最後の手段）
+      if (elements.length === 0) {
+        console.log('[Zenn Scrap TOC Debug] Still no headings, using all h1-h6...');
+        elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+      }
+    }
+
+    console.log('[Zenn Scrap TOC Debug] Total elements to process:', elements.length);
 
     elements.forEach((element) => {
       // details要素内の見出しを除外
       if (element.closest('details')) {
+        console.log('[Zenn Scrap TOC Debug] Excluded (in details):', element.textContent);
         return;
       }
 
       // pre/code要素内の見出しを除外
       if (element.closest('pre') || element.closest('code')) {
+        console.log('[Zenn Scrap TOC Debug] Excluded (in pre/code):', element.textContent);
         return;
       }
 
       // blockquote要素内の見出しを除外
       if (element.closest('blockquote')) {
+        console.log('[Zenn Scrap TOC Debug] Excluded (in blockquote):', element.textContent);
         return;
       }
 
       // aside要素内の見出しを除外
       if (element.closest('aside')) {
+        console.log('[Zenn Scrap TOC Debug] Excluded (in aside):', element.textContent);
+        return;
+      }
+
+      // ナビゲーションやヘッダー、フッター内の見出しを除外
+      if (element.closest('nav') || element.closest('header') || element.closest('footer')) {
+        console.log('[Zenn Scrap TOC Debug] Excluded (in nav/header/footer):', element.textContent);
         return;
       }
 
@@ -252,8 +309,11 @@
         id,
         element
       });
+
+      console.log('[Zenn Scrap TOC Debug] Added heading:', { level, text, id });
     });
 
+    console.log('[Zenn Scrap TOC Debug] Final heading count:', headings.length);
     return headings;
   }
 
@@ -352,7 +412,7 @@
     panel.className = `zenn-scrap-toc ${tocSettings.isExpanded ? 'expanded' : 'collapsed'}`;
 
     // バージョン表示（デバッグ用）
-    panel.dataset.version = '0.2.4';
+    panel.dataset.version = '0.2.5';
 
     // ヘッダー部分
     const header = document.createElement('div');
@@ -478,8 +538,8 @@
     const callback = function() {
       clearTimeout(initCheckTimer);
       initCheckTimer = setTimeout(() => {
-        // 見出しが存在するかチェック
-        const headings = document.querySelectorAll('h1.code-line, h2.code-line, h3.code-line');
+        // 見出しが存在するかチェック（h1-h6すべて）
+        const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
         console.log('[Zenn Scrap TOC] Early init check - headings found:', headings.length, 'isInitialized:', isInitialized);
         if (headings.length > 0 && !isInitialized) {
           console.log('[Zenn Scrap TOC] Headings detected, initializing immediately');
@@ -531,8 +591,8 @@
         const hasNewHeadings = mutationsList.some(mutation => {
           return Array.from(mutation.addedNodes).some(node => {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              return node.matches && (node.matches('h1.code-line, h2.code-line, h3.code-line') ||
-                     node.querySelector && node.querySelector('h1.code-line, h2.code-line, h3.code-line'));
+              return node.matches && (node.matches('h1, h2, h3, h4, h5, h6') ||
+                     node.querySelector && node.querySelector('h1, h2, h3, h4, h5, h6'));
             }
             return false;
           });
@@ -645,7 +705,7 @@
           console.log('[Zenn Scrap TOC] DOMContentLoaded fired');
 
           // 即座に見出しをチェック
-          const headings = document.querySelectorAll('h1.code-line, h2.code-line, h3.code-line');
+          const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
           if (headings.length > 0) {
             console.log('[Zenn Scrap TOC] Headings found on DOMContentLoaded:', headings.length);
             init();
@@ -656,7 +716,7 @@
             // フォールバック: 300ms後にまだ初期化されていなければ初期化
             setTimeout(() => {
               if (!isInitialized && !isWaitingForContent) {
-                const delayedHeadings = document.querySelectorAll('h1.code-line, h2.code-line, h3.code-line');
+                const delayedHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
                 console.log('[Zenn Scrap TOC] Fallback initialization (DOMContentLoaded) - headings:', delayedHeadings.length);
                 init();
               }
@@ -668,7 +728,7 @@
         console.log('[Zenn Scrap TOC] Document already loaded');
 
         // 即座に見出しをチェック
-        const headings = document.querySelectorAll('h1.code-line, h2.code-line, h3.code-line');
+        const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
         if (headings.length > 0) {
           console.log('[Zenn Scrap TOC] Headings already present, initializing immediately');
           init();
@@ -679,7 +739,7 @@
           // フォールバック
           setTimeout(() => {
             if (!isInitialized && !isWaitingForContent) {
-              const delayedHeadings = document.querySelectorAll('h1.code-line, h2.code-line, h3.code-line');
+              const delayedHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
               console.log('[Zenn Scrap TOC] Fallback initialization (initial load) - headings:', delayedHeadings.length);
               init();
             }
