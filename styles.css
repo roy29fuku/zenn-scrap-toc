@@ -209,10 +209,11 @@
 
 /* 空の状態 */
 .zenn-toc-empty {
-  padding: 20px;
+  padding: 24px 20px;
   text-align: center;
   color: #9ca3af;
   font-size: 13px;
+  font-style: italic;
 }
 
 [data-theme="dark"] .zenn-toc-empty {
